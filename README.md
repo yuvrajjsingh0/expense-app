@@ -33,9 +33,10 @@ MLC LLM. Everything stays on the device. Integrations push only what the user en
 
 ## The parser
 
-`src/parser.ts` extracts amount, direction, channel, account tail, merchant, and
-category from a single alert. It returns `null` for anything that is not a settled
-debit or credit, such as OTPs and promos.
+`src/parser.ts` extracts amount, direction, channel, account tail, merchant,
+category, a normalised ISO date, and a confidence score from a single alert. It
+returns `null` for anything that is not a settled debit or credit, such as OTPs
+and promos.
 
 ```ts
 import { parse } from "ledger-core";
@@ -43,12 +44,31 @@ import { parse } from "ledger-core";
 parse("Sent Rs.419.00 From HDFC Bank A/C x1234 To SWIGGY On 28-06 Ref 412 UPI");
 // {
 //   direction: "debit", amount: 419, channel: "UPI",
-//   account: "1234", brand: "Swiggy", category: "food", ...
+//   account: "1234", brand: "Swiggy", category: "food",
+//   date: "2026-06-28", confidence: 0.95, ...
 // }
 ```
 
 Merchant to category mapping lives in `src/merchants.ts`, ordered most specific first
 so "swiggy instamart" resolves to groceries before the bare "swiggy" food rule.
+
+### Typed results and the review queue
+
+`parse` returns `Transaction | null` for the common case. For the reason behind a
+rejection, `parseResult` returns a discriminated union (the Result pattern):
+either `{ ok: true, transaction }` or `{ ok: false, reason }`, where `reason` is a
+closed set such as `"rejected_keyword"` or `"no_amount"`.
+
+Every transaction carries a `confidence` in `[0, 1]` derived from how many signals
+the parser pinned down. `triage` splits a batch into `accepted` and `review`
+buckets so low confidence parses can be checked rather than trusted silently.
+
+### Dates and recurring merchants
+
+`normaliseDate` turns the many Indian date formats into a branded `ISODate`
+(`YYYY-MM-DD`), inferring a missing year from a reference point. Building on that,
+`detectRecurring` groups debits by counterparty and flags subscriptions and other
+charges that repeat on a regular weekly or monthly cadence.
 
 ## Run the tests
 
