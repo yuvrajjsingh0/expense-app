@@ -29,6 +29,28 @@ export type {
   HttpTransport,
   DecodedMessage,
 } from "./ingest/gmail";
+
+// Analytics for the dashboard and trends views.
+export {
+  categoryBreakdown,
+  monthlyTotals,
+  dailyFlow,
+  topMerchants,
+  monthSummary,
+  previousMonth,
+  latestMonth,
+} from "./analytics";
+export type {
+  CategorySlice,
+  MonthlyTotal,
+  DailyFlow,
+  MerchantTotal,
+  MonthSummary,
+} from "./analytics";
+
+// On device assistant (rule based fallback for the Ask tab).
+export { answer, createAssistant } from "./assistant/query";
+export type { Answer, Assistant } from "./assistant/query";
 export type {
   Transaction,
   Category,
