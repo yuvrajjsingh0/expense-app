@@ -70,12 +70,50 @@ buckets so low confidence parses can be checked rather than trusted silently.
 `detectRecurring` groups debits by counterparty and flags subscriptions and other
 charges that repeat on a regular weekly or monthly cadence.
 
+## Run the app
+
+A runnable web app lives in `app/`. It is the reference UI ported to the web and
+wires the parser core into a usable product: a Dashboard (month total with a
+delta, category donut, recent transactions), Trends (monthly bars, daily spend,
+top merchants, detected subscriptions), an Ask tab answered on device, and an
+Import tab for pasting SMS, CSV, or email HTML.
+
+```bash
+npm install
+npm run dev      # start the dev server at http://localhost:5173
+npm run build    # production build into dist-app/
+npm run preview  # serve the production build
+```
+
+It opens with realistic sample data, so it is usable immediately. Parsing runs
+entirely in the browser; nothing leaves the page.
+
 ## Run the tests
 
 ```bash
 npm install
-npm test
+npm test           # full engine test suite
+npm run typecheck  # type check the core
 ```
+
+## Beyond the parser
+
+The engine now spans the whole pipeline, all platform agnostic and tested:
+
+- Ingestion: `htmlToText`, `parseCsvStatement`, `parsePdfStatement`, and a
+  transport injectable `GmailClient`.
+- Analytics: `categoryBreakdown`, `monthlyTotals`, `dailyFlow`, `topMerchants`,
+  `monthSummary` for the dashboard and trends.
+- Assistant: `createAssistant` answers money questions on device, behind an
+  `Assistant` interface a real model can implement.
+- Integrations: `SheetsAppender`, `AccountAggregatorClient`, and an encrypted
+  backup (`createBackup` and `restoreBackup`).
+- Mobile: `syncSms` parses the Android inbox behind an `SmsReader` interface.
+
+The device, network, and cloud bindings are interfaces; see
+[`docs/ADAPTERS.md`](docs/ADAPTERS.md) for how each one is wired on a real
+target, and for an honest account of what runs in a pure sandbox versus what
+needs a device build.
 
 ## Continuous, agentic development
 
