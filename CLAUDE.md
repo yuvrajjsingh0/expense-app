@@ -36,7 +36,7 @@ Parser core
 - [x] Test suite across HDFC, ICICI, SBI, Axis, Kotak, plus OTP and promo rejection
 - [x] Add Yes Bank, PNB, BoB, IDFC First, and RuPay credit card formats
 - [x] Parse and normalise the transaction date into an ISO string
-- [ ] Detect subscriptions and recurring merchants
+- [x] Detect subscriptions and recurring merchants
 - [x] Confidence score per parse, with a review queue for low confidence
 
 Email ingestion (iOS and Android)

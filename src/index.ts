@@ -10,6 +10,8 @@ export {
   REVIEW_THRESHOLD,
 } from "./confidence";
 export type { Confidence, ReviewQueue, Unscored } from "./confidence";
+export { detectRecurring, SUBSCRIPTION_BRANDS } from "./recurring";
+export type { RecurringMerchant, RecurringOptions, Cadence } from "./recurring";
 export type {
   Transaction,
   Category,
