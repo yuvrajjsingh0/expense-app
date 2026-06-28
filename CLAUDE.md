@@ -40,9 +40,9 @@ Parser core
 - [x] Confidence score per parse, with a review queue for low confidence
 
 Email ingestion (iOS and Android)
-- [ ] Gmail API client, label filter for bank senders
-- [ ] HTML email to plain text, then reuse the parser core
-- [ ] PDF and CSV statement import
+- [x] Gmail API client, label filter for bank senders
+- [x] HTML email to plain text, then reuse the parser core
+- [x] PDF and CSV statement import
 
 Mobile app
 - [ ] React Native shell, bare workflow (native modules needed, Expo Go will not work)
