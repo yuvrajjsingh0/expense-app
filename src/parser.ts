@@ -1,5 +1,16 @@
 import type { Transaction, Channel, Direction } from "./types";
 import { categorise } from "./merchants";
+import { normaliseDate } from "./date";
+
+/** Options that tune how a single alert is parsed. */
+export interface ParseOptions {
+  /**
+   * Reference point used to infer a missing year on a date. Defaults to now.
+   * Pass a fixed value for deterministic parsing, for example in tests or when
+   * replaying an archived inbox.
+   */
+  now?: Date;
+}
 
 // Messages that are codes or promos, never a settled transaction.
 const REJECT = /\b(otp|one[\s-]?time\s?password|do not share|verification code|will expire|cvv)\b/i;
@@ -45,7 +56,7 @@ function detectChannel(t: string): Channel {
  * Returns null when the text is not a settled debit or credit
  * (OTPs, promos, balance only messages).
  */
-export function parse(raw: string): Transaction | null {
+export function parse(raw: string, options: ParseOptions = {}): Transaction | null {
   const text = raw.trim();
   if (!text || REJECT.test(text)) return null;
 
@@ -63,6 +74,7 @@ export function parse(raw: string): Transaction | null {
   const account = text.match(ACCOUNT)?.[1];
   const ref = text.match(REF)?.[1];
   const dateText = text.match(DATE)?.[0];
+  const date = dateText ? normaliseDate(dateText, options.now) : undefined;
 
   // Counterparty: a UPI handle wins, otherwise the first phrase pattern.
   let merchant: string | undefined;
@@ -94,10 +106,13 @@ export function parse(raw: string): Transaction | null {
     vpa,
     ref,
     dateText,
+    date,
   };
 }
 
 /** Parse many messages, dropping the ones that are not transactions. */
-export function parseAll(messages: string[]): Transaction[] {
-  return messages.map(parse).filter((t): t is Transaction => t !== null);
+export function parseAll(messages: string[], options: ParseOptions = {}): Transaction[] {
+  return messages
+    .map((m) => parse(m, options))
+    .filter((t): t is Transaction => t !== null);
 }

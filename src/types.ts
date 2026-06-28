@@ -1,6 +1,8 @@
 // Shared types for the transaction parser. Platform agnostic so the same
 // engine runs on Android (SMS), iOS (email and Account Aggregator), and in tests.
 
+import type { ISODate } from "./date";
+
 export type Category =
   | "food"
   | "groceries"
@@ -33,4 +35,6 @@ export interface Transaction {
   ref?: string;
   /** Date string exactly as it appeared in the message, not normalised. */
   dateText?: string;
+  /** Transaction date normalised to an ISO calendar date, when one was found. */
+  date?: ISODate;
 }
