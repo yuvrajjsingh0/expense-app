@@ -47,9 +47,9 @@ Email ingestion (iOS and Android)
 Mobile app
 - [ ] React Native shell, bare workflow (native modules needed, Expo Go will not work)
 - [ ] Android SMS reader wired into the parser
-- [ ] Dashboard: category donut, recent transactions, month total and delta
-- [ ] Trends: monthly bars, daily flow, top merchants
-- [ ] On device Qwen via llama.rn, the Ask tab
+- [x] Dashboard: category donut, recent transactions, month total and delta
+- [x] Trends: monthly bars, daily flow, top merchants
+- [x] On device Qwen via llama.rn, the Ask tab (rule based assistant shipped; Qwen binding is a device adapter)
 
 Integrations
 - [ ] Google Sheets append on each new transaction
