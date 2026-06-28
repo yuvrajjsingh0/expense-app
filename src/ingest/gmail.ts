@@ -8,15 +8,9 @@
 // on Gmail.
 
 import { htmlToText } from "./html";
+import type { HttpTransport } from "../http";
 
-/** A minimal HTTP surface, satisfied by fetch or any equivalent. */
-export interface HttpTransport {
-  (url: string, init?: { headers?: Record<string, string> }): Promise<{
-    ok: boolean;
-    status: number;
-    json: () => Promise<unknown>;
-  }>;
-}
+export type { HttpTransport };
 
 export interface GmailClientOptions {
   /** OAuth2 bearer token with at least gmail.readonly scope. */

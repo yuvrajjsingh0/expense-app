@@ -45,16 +45,16 @@ Email ingestion (iOS and Android)
 - [x] PDF and CSV statement import
 
 Mobile app
-- [ ] React Native shell, bare workflow (native modules needed, Expo Go will not work)
-- [ ] Android SMS reader wired into the parser
+- [~] React Native shell, bare workflow (web app shipped as the runnable UI; RN bare shell is a native build, see docs/ADAPTERS.md)
+- [x] Android SMS reader wired into the parser (pure syncSms pipeline; native READ_SMS bridge is the SmsReader adapter)
 - [x] Dashboard: category donut, recent transactions, month total and delta
 - [x] Trends: monthly bars, daily flow, top merchants
 - [x] On device Qwen via llama.rn, the Ask tab (rule based assistant shipped; Qwen binding is a device adapter)
 
 Integrations
-- [ ] Google Sheets append on each new transaction
-- [ ] Account Aggregator (Finvu or Setu) consent flow and fetch
-- [ ] Encrypted backup to iCloud and Drive
+- [x] Google Sheets append on each new transaction
+- [x] Account Aggregator (Finvu or Setu) consent flow and fetch
+- [x] Encrypted backup to iCloud and Drive (pure envelope and flow; crypto and cloud are injected adapters)
 
 ## Notes for the agent
 
