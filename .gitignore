@@ -4,3 +4,6 @@ dist/
 .DS_Store
 .env
 coverage/
+
+# Vite app build output
+dist-app/

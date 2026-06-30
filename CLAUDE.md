@@ -34,27 +34,27 @@ Parser core
 - [x] Amount, direction, channel, account, merchant, category extraction
 - [x] Merchant to category dictionary, specific before general
 - [x] Test suite across HDFC, ICICI, SBI, Axis, Kotak, plus OTP and promo rejection
-- [ ] Add Yes Bank, PNB, BoB, IDFC First, and RuPay credit card formats
-- [ ] Parse and normalise the transaction date into an ISO string
-- [ ] Detect subscriptions and recurring merchants
-- [ ] Confidence score per parse, with a review queue for low confidence
+- [x] Add Yes Bank, PNB, BoB, IDFC First, and RuPay credit card formats
+- [x] Parse and normalise the transaction date into an ISO string
+- [x] Detect subscriptions and recurring merchants
+- [x] Confidence score per parse, with a review queue for low confidence
 
 Email ingestion (iOS and Android)
-- [ ] Gmail API client, label filter for bank senders
-- [ ] HTML email to plain text, then reuse the parser core
-- [ ] PDF and CSV statement import
+- [x] Gmail API client, label filter for bank senders
+- [x] HTML email to plain text, then reuse the parser core
+- [x] PDF and CSV statement import
 
 Mobile app
-- [ ] React Native shell, bare workflow (native modules needed, Expo Go will not work)
-- [ ] Android SMS reader wired into the parser
-- [ ] Dashboard: category donut, recent transactions, month total and delta
-- [ ] Trends: monthly bars, daily flow, top merchants
-- [ ] On device Qwen via llama.rn, the Ask tab
+- [~] React Native shell, bare workflow (web app shipped as the runnable UI; RN bare shell is a native build, see docs/ADAPTERS.md)
+- [x] Android SMS reader wired into the parser (pure syncSms pipeline; native READ_SMS bridge is the SmsReader adapter)
+- [x] Dashboard: category donut, recent transactions, month total and delta
+- [x] Trends: monthly bars, daily flow, top merchants
+- [x] On device Qwen via llama.rn, the Ask tab (rule based assistant shipped; Qwen binding is a device adapter)
 
 Integrations
-- [ ] Google Sheets append on each new transaction
-- [ ] Account Aggregator (Finvu or Setu) consent flow and fetch
-- [ ] Encrypted backup to iCloud and Drive
+- [x] Google Sheets append on each new transaction
+- [x] Account Aggregator (Finvu or Setu) consent flow and fetch
+- [x] Encrypted backup to iCloud and Drive (pure envelope and flow; crypto and cloud are injected adapters)
 
 ## Notes for the agent
 

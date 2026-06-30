@@ -33,9 +33,10 @@ MLC LLM. Everything stays on the device. Integrations push only what the user en
 
 ## The parser
 
-`src/parser.ts` extracts amount, direction, channel, account tail, merchant, and
-category from a single alert. It returns `null` for anything that is not a settled
-debit or credit, such as OTPs and promos.
+`src/parser.ts` extracts amount, direction, channel, account tail, merchant,
+category, a normalised ISO date, and a confidence score from a single alert. It
+returns `null` for anything that is not a settled debit or credit, such as OTPs
+and promos.
 
 ```ts
 import { parse } from "ledger-core";
@@ -43,19 +44,76 @@ import { parse } from "ledger-core";
 parse("Sent Rs.419.00 From HDFC Bank A/C x1234 To SWIGGY On 28-06 Ref 412 UPI");
 // {
 //   direction: "debit", amount: 419, channel: "UPI",
-//   account: "1234", brand: "Swiggy", category: "food", ...
+//   account: "1234", brand: "Swiggy", category: "food",
+//   date: "2026-06-28", confidence: 0.95, ...
 // }
 ```
 
 Merchant to category mapping lives in `src/merchants.ts`, ordered most specific first
 so "swiggy instamart" resolves to groceries before the bare "swiggy" food rule.
 
+### Typed results and the review queue
+
+`parse` returns `Transaction | null` for the common case. For the reason behind a
+rejection, `parseResult` returns a discriminated union (the Result pattern):
+either `{ ok: true, transaction }` or `{ ok: false, reason }`, where `reason` is a
+closed set such as `"rejected_keyword"` or `"no_amount"`.
+
+Every transaction carries a `confidence` in `[0, 1]` derived from how many signals
+the parser pinned down. `triage` splits a batch into `accepted` and `review`
+buckets so low confidence parses can be checked rather than trusted silently.
+
+### Dates and recurring merchants
+
+`normaliseDate` turns the many Indian date formats into a branded `ISODate`
+(`YYYY-MM-DD`), inferring a missing year from a reference point. Building on that,
+`detectRecurring` groups debits by counterparty and flags subscriptions and other
+charges that repeat on a regular weekly or monthly cadence.
+
+## Run the app
+
+A runnable web app lives in `app/`. It is the reference UI ported to the web and
+wires the parser core into a usable product: a Dashboard (month total with a
+delta, category donut, recent transactions), Trends (monthly bars, daily spend,
+top merchants, detected subscriptions), an Ask tab answered on device, and an
+Import tab for pasting SMS, CSV, or email HTML.
+
+```bash
+npm install
+npm run dev      # start the dev server at http://localhost:5173
+npm run build    # production build into dist-app/
+npm run preview  # serve the production build
+```
+
+It opens with realistic sample data, so it is usable immediately. Parsing runs
+entirely in the browser; nothing leaves the page.
+
 ## Run the tests
 
 ```bash
 npm install
-npm test
+npm test           # full engine test suite
+npm run typecheck  # type check the core
 ```
+
+## Beyond the parser
+
+The engine now spans the whole pipeline, all platform agnostic and tested:
+
+- Ingestion: `htmlToText`, `parseCsvStatement`, `parsePdfStatement`, and a
+  transport injectable `GmailClient`.
+- Analytics: `categoryBreakdown`, `monthlyTotals`, `dailyFlow`, `topMerchants`,
+  `monthSummary` for the dashboard and trends.
+- Assistant: `createAssistant` answers money questions on device, behind an
+  `Assistant` interface a real model can implement.
+- Integrations: `SheetsAppender`, `AccountAggregatorClient`, and an encrypted
+  backup (`createBackup` and `restoreBackup`).
+- Mobile: `syncSms` parses the Android inbox behind an `SmsReader` interface.
+
+The device, network, and cloud bindings are interfaces; see
+[`docs/ADAPTERS.md`](docs/ADAPTERS.md) for how each one is wired on a real
+target, and for an honest account of what runs in a pure sandbox versus what
+needs a device build.
 
 ## Continuous, agentic development
 

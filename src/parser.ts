@@ -1,5 +1,17 @@
-import type { Transaction, Channel, Direction } from "./types";
+import type { Transaction, Channel, Direction, ParseResult } from "./types";
 import { categorise } from "./merchants";
+import { normaliseDate } from "./date";
+import { scoreConfidence, type Unscored } from "./confidence";
+
+/** Options that tune how a single alert is parsed. */
+export interface ParseOptions {
+  /**
+   * Reference point used to infer a missing year on a date. Defaults to now.
+   * Pass a fixed value for deterministic parsing, for example in tests or when
+   * replaying an archived inbox.
+   */
+  now?: Date;
+}
 
 // Messages that are codes or promos, never a settled transaction.
 const REJECT = /\b(otp|one[\s-]?time\s?password|do not share|verification code|will expire|cvv)\b/i;
@@ -41,28 +53,34 @@ function detectChannel(t: string): Channel {
 }
 
 /**
- * Parse a single bank or UPI alert into a Transaction.
- * Returns null when the text is not a settled debit or credit
- * (OTPs, promos, balance only messages).
+ * Parse a single bank or UPI alert, returning a typed result.
+ *
+ * On success the result holds a scored Transaction. On failure it holds a
+ * {@link RejectReason} explaining why the text was not a settled debit or
+ * credit, so callers can branch exhaustively instead of inspecting a bare null.
  */
-export function parse(raw: string): Transaction | null {
+export function parseResult(raw: string, options: ParseOptions = {}): ParseResult {
   const text = raw.trim();
-  if (!text || REJECT.test(text)) return null;
+  if (!text) return { ok: false, reason: "empty" };
+  if (REJECT.test(text)) return { ok: false, reason: "rejected_keyword" };
 
   let direction: Direction;
   if (DEBIT.test(text)) direction = "debit";
   else if (CREDIT.test(text)) direction = "credit";
-  else return null;
+  else return { ok: false, reason: "no_direction" };
 
   const amtMatch = text.match(AMOUNT_PREFIXED) ?? text.match(AMOUNT_BY);
-  if (!amtMatch) return null;
+  if (!amtMatch) return { ok: false, reason: "no_amount" };
   const amount = num(amtMatch[1]);
-  if (!Number.isFinite(amount) || amount <= 0) return null;
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return { ok: false, reason: "invalid_amount" };
+  }
 
   const channel = detectChannel(text);
   const account = text.match(ACCOUNT)?.[1];
   const ref = text.match(REF)?.[1];
   const dateText = text.match(DATE)?.[0];
+  const date = dateText ? normaliseDate(dateText, options.now) : undefined;
 
   // Counterparty: a UPI handle wins, otherwise the first phrase pattern.
   let merchant: string | undefined;
@@ -82,7 +100,7 @@ export function parse(raw: string): Transaction | null {
   const source = merchant ?? "";
   const { brand, category } = categorise(source);
 
-  return {
+  const base: Unscored = {
     raw,
     direction,
     amount,
@@ -94,10 +112,26 @@ export function parse(raw: string): Transaction | null {
     vpa,
     ref,
     dateText,
+    date,
   };
+
+  return { ok: true, transaction: { ...base, confidence: scoreConfidence(base) } };
+}
+
+/**
+ * Parse a single bank or UPI alert into a Transaction.
+ * Returns null when the text is not a settled debit or credit
+ * (OTPs, promos, balance only messages). For the reason behind a rejection,
+ * use {@link parseResult}.
+ */
+export function parse(raw: string, options: ParseOptions = {}): Transaction | null {
+  const result = parseResult(raw, options);
+  return result.ok ? result.transaction : null;
 }
 
 /** Parse many messages, dropping the ones that are not transactions. */
-export function parseAll(messages: string[]): Transaction[] {
-  return messages.map(parse).filter((t): t is Transaction => t !== null);
+export function parseAll(messages: string[], options: ParseOptions = {}): Transaction[] {
+  return messages
+    .map((m) => parse(m, options))
+    .filter((t): t is Transaction => t !== null);
 }
