@@ -6,19 +6,21 @@ cloud is expressed as a small TypeScript interface, and the real binding is
 supplied at the edge. This file lists each seam and how to wire it on a real
 target.
 
-This is also an honest map of what is and is not runnable in a pure JavaScript
-sandbox. The web app (`npm run dev`) is fully runnable here. The native and
-cloud bindings below require a device build or real credentials, so they ship as
-interfaces with pure, tested logic behind them rather than as something that
-pretends to run offline.
+The interfaces below now have concrete React Native implementations in
+`app/adapters`, each type checked against the real Expo and llama.rn types and
+included in the verified Metro bundle. What still needs a device is the final
+build and run step, plus real OAuth and model files at runtime.
 
-## What runs today
+## What runs and is verified today
 
 - `npm test` runs the full engine: parser, dates, confidence, recurring,
-  analytics, assistant, ingestion (HTML, CSV, PDF text, Gmail with a fake
-  transport), integrations, backup, and SMS sync. All pure, all deterministic.
-- `npm run dev` runs the web app: Dashboard, Trends, Ask, and Import, driven by
-  the same engine, with sample data and paste your own import.
+  analytics, assistant, prompt, model manager, ingestion, integrations, backup,
+  and the reusable sync engine. All pure and deterministic.
+- `npm run typecheck` and `npm run typecheck:app` type check the engine and the
+  RN app.
+- `npx expo export` bundles the whole app (engine plus every adapter) with Metro,
+  proving imports, babel, and the reanimated plugin resolve.
+- `npx expo run:android` builds and runs it on a device or emulator.
 
 ## Adapter seams
 

@@ -4,8 +4,9 @@ An India first personal finance engine. It reads bank and UPI transaction alerts
 turns them into clean structured transactions, categorises them, and feeds an
 on device assistant. No bank login. Parsing runs locally on the phone.
 
-This repository is the starting point. The parser core is built and tested. The
-mobile shells and integrations are on the roadmap below.
+This repository is a full React Native app on a platform agnostic engine: the
+parser and analytics core in `src/`, the Expo app in `app/`. See `docs/ADAPTERS.md`
+for how the device, network, and cloud bindings plug in.
 
 ## Why this exists
 
@@ -72,21 +73,27 @@ charges that repeat on a regular weekly or monthly cadence.
 
 ## Run the app
 
-A runnable web app lives in `app/`. It is the reference UI ported to the web and
-wires the parser core into a usable product: a Dashboard (month total with a
+The app is a React Native app built with Expo (prebuild plus a dev client). The
+UI lives in `app/`, the engine in `src/`. Screens: Dashboard (month total with a
 delta, category donut, recent transactions), Trends (monthly bars, daily spend,
-top merchants, detected subscriptions), an Ask tab answered on device, and an
-Import tab for pasting SMS, CSV, or email HTML.
+top merchants, subscriptions), Ask (a streaming on device assistant), Import
+(paste SMS, CSV, or email HTML), and Settings (model download, encrypted sync,
+data reset).
+
+Because it uses native modules (on device Qwen, SMS, secure storage) it runs on
+a dev build, not Expo Go. Use Node 18 or 20 (Expo does not support Node 22 yet).
 
 ```bash
 npm install
-npm run dev      # start the dev server at http://localhost:5173
-npm run build    # production build into dist-app/
-npm run preview  # serve the production build
+npx expo prebuild          # generate the native android/ and ios/ projects
+npx expo run:android       # build and launch on a device or emulator
+npx expo run:ios           # or iOS (email and Account Aggregator, no SMS)
 ```
 
 It opens with realistic sample data, so it is usable immediately. Parsing runs
-entirely in the browser; nothing leaves the page.
+entirely on device; nothing leaves the phone unless you enable sync.
+
+The JS bundle is validated in CI-like runs with `npx expo export`.
 
 ## Run the tests
 
@@ -109,6 +116,10 @@ The engine now spans the whole pipeline, all platform agnostic and tested:
 - Integrations: `SheetsAppender`, `AccountAggregatorClient`, and an encrypted
   backup (`createBackup` and `restoreBackup`).
 - Mobile: `syncSms` parses the Android inbox behind an `SmsReader` interface.
+- Sync: a reusable, provider agnostic `SyncEngine` with Google Drive and Dropbox
+  providers, encrypted end to end. Designed to be lifted into other apps.
+- On device model: a `ModelManager` (download, verify, cache) and a Qwen
+  registry, with an `AsyncAssistant` the Ask tab drives.
 
 The device, network, and cloud bindings are interfaces; see
 [`docs/ADAPTERS.md`](docs/ADAPTERS.md) for how each one is wired on a real
