@@ -47,6 +47,29 @@ export type {
 // On device assistant (rule based fallback for the Ask tab).
 export { answer, createAssistant } from "./assistant/query";
 export type { Answer, Assistant } from "./assistant/query";
+export {
+  toAsyncAssistant,
+  createRuleAssistant,
+} from "./assistant/assistant";
+export type { AsyncAssistant } from "./assistant/assistant";
+export { buildPrompt, buildContext } from "./assistant/prompt";
+export type { ChatMessage, PromptOptions } from "./assistant/prompt";
+export {
+  QWEN_MODELS,
+  DEFAULT_MODEL_ID,
+  findModel,
+  formatSize,
+} from "./assistant/models";
+export type { QwenModel, Quantisation } from "./assistant/models";
+export { ModelManager } from "./assistant/modelManager";
+export type {
+  ModelStatus,
+  DownloadProgress,
+  Downloader,
+  Hasher,
+  FileStore,
+  ModelManagerDeps,
+} from "./assistant/modelManager";
 
 // Shared HTTP transport for the network clients.
 export type { HttpTransport, HttpRequest, HttpResponse } from "./http";
