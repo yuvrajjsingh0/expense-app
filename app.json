@@ -18,6 +18,6 @@
       "package": "app.ledger.mobile",
       "permissions": ["android.permission.READ_SMS", "android.permission.RECEIVE_SMS"]
     },
-    "plugins": ["expo-dev-client", "expo-secure-store", "expo-web-browser"]
+    "plugins": ["expo-dev-client", "expo-secure-store"]
   }
 }
