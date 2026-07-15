@@ -1,4 +1,4 @@
-import type { Category } from "../src/types";
+// Display formatting shared across screens.
 
 /** Format a number as Indian rupees with lakh and crore grouping. */
 export function inr(amount: number): string {
@@ -11,31 +11,17 @@ export function inr(amount: number): string {
   return `${sign}₹${rest ? `${grouped},${last3}` : last3}`;
 }
 
-/** A stable colour per category, used across the donut and legends. */
-export const CATEGORY_COLOURS: Readonly<Record<Category, string>> = {
-  food: "#f97316",
-  groceries: "#22c55e",
-  transport: "#3b82f6",
-  shopping: "#a855f7",
-  bills: "#eab308",
-  entertainment: "#ec4899",
-  health: "#14b8a6",
-  others: "#94a3b8",
-};
-
 /**
- * Map a brand string to a Simple Icons slug so a logo can be fetched at runtime.
- * Per the project rules, no logo files are committed; the URL is keyed on the
- * merchant the parser returns. Returns null when there is no obvious slug.
+ * Simple Icons logo URL keyed on the brand, per the project rule of never
+ * committing logo files. Returns null when there is no plausible slug.
  */
 export function brandIconUrl(brand: string | undefined): string | null {
   if (!brand) return null;
   const slug = brand.toLowerCase().replace(/[^a-z0-9]/g, "");
-  if (!slug) return null;
-  return `https://cdn.simpleicons.org/${slug}`;
+  return slug ? `https://cdn.simpleicons.org/${slug}` : null;
 }
 
-/** First letter for a fallback avatar when no logo loads. */
+/** First letter for a fallback avatar. */
 export function initial(text: string | undefined): string {
   return (text ?? "?").trim().charAt(0).toUpperCase() || "?";
 }

@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "ledger",
+    "slug": "ledger",
+    "version": "0.2.0",
+    "scheme": "ledger",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#0b1020"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.ledger.mobile"
+    },
+    "android": {
+      "package": "app.ledger.mobile",
+      "permissions": ["android.permission.READ_SMS", "android.permission.RECEIVE_SMS"]
+    },
+    "plugins": ["expo-dev-client", "expo-secure-store", "expo-web-browser"]
+  }
+}
