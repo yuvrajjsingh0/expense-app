@@ -50,6 +50,10 @@ export type { Answer, Assistant } from "./assistant/query";
 
 // Shared HTTP transport for the network clients.
 export type { HttpTransport, HttpRequest, HttpResponse } from "./http";
+export { readText } from "./http";
+
+// Reusable, provider agnostic encrypted sync.
+export * from "./sync";
 
 // Integrations.
 export {
